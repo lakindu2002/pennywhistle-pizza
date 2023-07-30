@@ -4,13 +4,14 @@ import { generateNanoId } from "@pizza/utils";
 import { ProductService } from "./product-service";
 import Database from "@pizza/database";
 import { startOfDay, endOfDay } from "date-fns";
+import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 export class OrderService {
   static async ordersPerDateAndStatus(
     startDate: number,
     endDate: number,
     status?: OrderStatus
-  ) {
+  ): Promise<Order[]> {
     const dayStart = startOfDay(startDate).getTime();
     const dayEnd = endOfDay(endDate).getTime();
     let nextKey: any;
@@ -68,7 +69,7 @@ export class OrderService {
     orderId: string,
     newStatus: OrderStatus,
     prevStatus: OrderStatus
-  ) {
+  ): Promise<boolean> {
     const database = new Database();
     await database.db
       .transactWrite({
@@ -76,7 +77,7 @@ export class OrderService {
           {
             Update: {
               TableName: database.ordersTable,
-              Key: { id: orderId },
+              Key: { orderId },
               UpdateExpression: "SET #status = :newStatus",
               ConditionExpression: "#cstatus = :cstatus",
               ExpressionAttributeNames: {
@@ -85,7 +86,7 @@ export class OrderService {
               },
               ExpressionAttributeValues: {
                 ":cstatus": prevStatus,
-                ":status": newStatus,
+                ":newStatus": newStatus,
               },
             },
           },
@@ -100,7 +101,7 @@ export class OrderService {
     const { Item } = await database.db
       .get({
         TableName: database.ordersTable,
-        Key: { id: orderId },
+        Key: { orderId },
       })
       .promise();
 
@@ -118,9 +119,11 @@ export class OrderService {
     return { orders: Items as Order[] };
   }
 
-  static async getOrdersPerStatus(status: OrderStatus) {
+  static async getOrdersPerStatus(status: OrderStatus): Promise<{
+    orders: Order[];
+  }> {
     const database = new Database();
-    let nextKey: any = undefined;
+    let nextKey: any;
     const orders: Order[] = [];
     do {
       const { Items = [], LastEvaluatedKey } = await database.db
@@ -143,7 +146,13 @@ export class OrderService {
     return { orders };
   }
 
-  static async getOrdersPerCustomerId(customerId: string, nextKey?: any) {
+  static async getOrdersPerCustomerId(
+    customerId: string,
+    nextKey?: any
+  ): Promise<{
+    orders: Order[];
+    nextKey: DocumentClient.Key;
+  }> {
     const database = new Database();
     const { Items = [], LastEvaluatedKey } = await database.db
       .query({
@@ -163,7 +172,9 @@ export class OrderService {
     return { orders: Items as Order[], nextKey: LastEvaluatedKey };
   }
 
-  static async getCurrentOrdersPerCustomer(customerId: string) {
+  static async getCurrentOrdersPerCustomer(
+    customerId: string
+  ): Promise<Order[]> {
     const allOrders: Order[] = [];
     let orderNextKey: any;
 
@@ -183,7 +194,10 @@ export class OrderService {
     return allOrders;
   }
 
-  static async createOrder(orderDto: CreateOrderDTO, customerId: string) {
+  static async createOrder(
+    orderDto: CreateOrderDTO,
+    customerId: string
+  ): Promise<string> {
     const { items, type, deliveryInformation } = orderDto;
 
     const results = await Promise.all(
@@ -208,7 +222,7 @@ export class OrderService {
     );
     const timestamp = Date.now();
     const order: Order = {
-      id: generateNanoId(),
+      orderId: generateNanoId(),
       createdAt: timestamp,
       customerId,
       status: OrderStatus.PENDING,
@@ -225,5 +239,7 @@ export class OrderService {
         TableName: database.ordersTable,
       })
       .promise();
+
+    return order.orderId;
   }
 }

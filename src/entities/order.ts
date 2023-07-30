@@ -30,12 +30,12 @@ export interface OrderItem extends ProductSchema {
 }
 
 export interface Order {
-  id: string;
+  orderId: string;
   createdAt: number;
   updatedAt: number;
   status: OrderStatus;
   customerId: string;
-  items: Array<OrderItem>;
+  items: OrderItem[];
   type: OrderType;
   /**
    * only mandatory if type === OrderType.PICK_UP

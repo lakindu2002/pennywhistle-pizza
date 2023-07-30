@@ -24,14 +24,15 @@ export class ProductService {
 
     // Convert the groupedProducts object back to an array of product objects
     const products = Object.values(groupedProducts).map((variants: any[]) => {
-      const baseProduct = variants[0]; // Use the first variant to represent the base product
-      const variantsWithoutBase = variants.slice(1); // Remove the first variant (base product)
+      const baseProduct: Product = variants[0]; // Use the first variant to represent the base product
+      const variantsWithoutBase: ProductVariant[] = variants.slice(1); // Remove the first variant (base product)
 
       return {
         name: baseProduct.name,
         baseSku: baseProduct.baseSku,
         variants: variantsWithoutBase.map((variant) => ({
-          sku: variant.sku,
+          baseSku: variant.baseSku,
+          variantSku: variant.variantSku,
           price: variant.price,
           size: variant.size,
           type: variant.type,
@@ -226,7 +227,7 @@ export class ProductService {
     const { Item } = await database.db
       .get({
         Key: { baseSku, variantSku },
-        TableName: database.ordersTable,
+        TableName: database.productsTable,
       })
       .promise();
 

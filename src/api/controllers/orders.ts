@@ -2,13 +2,19 @@ import { CreateOrderDTO } from "@pizza/dto/order";
 import { OrderService } from "@pizza/api/services";
 import { OrderStatus, OrderType, User, UserRole } from "@pizza/entities";
 import { Request, Response } from "express";
+import {
+  handleAdministratorUpdate,
+  handleDeliveryStaffUpdate,
+  handleKitchenStaffUpdate,
+  handleStoreStaffUpdate,
+} from "@pizza/utils/order";
 
 export const makeOrder = async (req: Request, resp: Response) => {
   const { id } = req.user as User;
   const orderData = req.body as CreateOrderDTO;
   try {
-    const orderId = OrderService.createOrder(orderData, id);
-    resp.json({ message: "HEALTHY", orderId });
+    const orderId = await OrderService.createOrder(orderData, id);
+    resp.json({ orderId, message: "ORDER_CREATED" });
   } catch (err) {
     resp.status(500);
     resp.json({ message: "Failed to create order" });
@@ -22,6 +28,7 @@ export const getOrdersPerCustomer = async (req: Request, resp: Response) => {
   if (role === UserRole.CUSTOMER && customerId !== id) {
     resp.status(403);
     resp.json({ message: "CANNOT_ACCESS" });
+    return;
   }
 
   try {
@@ -45,10 +52,13 @@ export const getCustomersCurrentOrderInformation = async (
   if (customerId !== id) {
     resp.status(403);
     resp.json({ message: "CANNOT_ACCESS" });
+    return;
   }
 
   try {
-    const currentOrders = OrderService.getCurrentOrdersPerCustomer(customerId);
+    const currentOrders = await OrderService.getCurrentOrdersPerCustomer(
+      customerId
+    );
     resp.json({ currentOrders });
   } catch (err) {
     resp.status(500);
@@ -64,20 +74,27 @@ export const getOrdersByStatus = async (req: Request, resp: Response) => {
       OrderStatus.PENDING
     );
     resp.json({ orders });
-  } else if (role === UserRole.KITCHEN_STAFF) {
+    return;
+  }
+  if (role === UserRole.KITCHEN_STAFF) {
     const [pendingOrders, preparingOrders] = await Promise.all([
       OrderService.getOrdersPerStatus(OrderStatus.PENDING),
       OrderService.getOrdersPerStatus(OrderStatus.PREPARING),
     ]);
     resp.json({ pendingOrders, preparingOrders });
-  } else if (role === UserRole.DELIVERY_STAFF) {
+    return;
+  }
+  if (role === UserRole.DELIVERY_STAFF) {
     const orders = await OrderService.getOrdersPerStatus(
       OrderStatus.READY_TO_DELIVER
     );
     resp.json({ orders });
-  } else if (role === UserRole.ADMINISTRATOR) {
+    return;
+  }
+  if (role === UserRole.ADMINISTRATOR) {
     const { orders } = await OrderService.getAllOrders();
     resp.json({ orders });
+    return;
   }
   resp.status(400);
   resp.json({ message: "BAD_REQUEST" });
@@ -87,16 +104,19 @@ export const getOrdersBetweenADateRange = async (
   req: Request,
   resp: Response
 ) => {
-  const { startDate, endDate } = req.params as unknown as {
-    startDate: number;
-    endDate: number;
-  };
+  const { startDate, endDate } = req.params;
   const { status } = req.body as { status?: OrderStatus };
+
+  if (!startDate || !endDate || !Number(startDate) || !Number(endDate)) {
+    resp.status(400);
+    resp.json({ message: "Invalid inputs" });
+    return;
+  }
 
   try {
     const ordersPerDateAndStatus = await OrderService.ordersPerDateAndStatus(
-      startDate,
-      endDate,
+      Number(startDate),
+      Number(endDate),
       status
     );
     resp.json({ orders: ordersPerDateAndStatus });
@@ -113,79 +133,25 @@ export const updateOrderInformation = async (req: Request, resp: Response) => {
 
   try {
     if (role === UserRole.ADMINISTRATOR) {
-      if (
-        status === OrderStatus.PICKED_UP ||
-        status === OrderStatus.DELIVERED
-      ) {
-        await OrderService.updateOrderStatus(
-          orderId,
-          OrderStatus.COMPLETED,
-          status
-        );
-      }
-    } else if (role === UserRole.STORE_STAFF) {
-      // Store Staff can view and change order status only from Pending to Cancel
-      if (status === OrderStatus.PENDING) {
-        // Store staff can change the order status to Cancel
-        await OrderService.updateOrderStatus(
-          orderId,
-          OrderStatus.CANCEL,
-          status
-        );
-        resp.json({ message: "Order status updated to Cancel." });
-      } else if (status === OrderStatus.READY_TO_PICK_UP) {
-        await OrderService.updateOrderStatus(
-          orderId,
-          OrderStatus.PICKED_UP,
-          status
-        );
-        resp.json({ message: "Order status updated to Cancel." });
-      } else {
-        resp
-          .status(403)
-          .json({ error: "Not authorized to update order status." });
-      }
-    } else if (role === UserRole.KITCHEN_STAFF) {
-      // Kitchen Staff can pick up orders and change the status from Pending to Preparing
-      if (status === OrderStatus.PENDING) {
-        await OrderService.updateOrderStatus(
-          orderId,
-          OrderStatus.PREPARING,
-          status
-        );
-        resp.json({ message: "Order status updated to Preparing." });
-      } else if (status === OrderStatus.PREPARING) {
-        await OrderService.updateOrderStatus(
-          orderId,
-          type === OrderType.DELIVERY
-            ? OrderStatus.READY_TO_DELIVER
-            : OrderStatus.READY_TO_PICK_UP,
-          status
-        );
-      } else {
-        resp.status(403).json({
-          error: "Not authorized to update order status to Preparing.",
-        });
-      }
-    } else if (role === UserRole.DELIVERY_STAFF) {
-      // Delivery Staff can view orders that are ready to be delivered
-      if (status === OrderStatus.READY_TO_DELIVER) {
-        await OrderService.updateOrderStatus(
-          orderId,
-          OrderStatus.DELIVERED,
-          status
-        );
-      } else {
-        resp.status(403).json({
-          error: "Not authorized to update order status to Delivered.",
-        });
-      }
-    } else {
-      resp.status(403).json({ error: "Unauthorized role." });
+      await handleAdministratorUpdate(resp, orderId, status);
+      return;
     }
+    if (role === UserRole.STORE_STAFF) {
+      await handleStoreStaffUpdate(resp, orderId, status);
+      return;
+    }
+    if (role === UserRole.KITCHEN_STAFF) {
+      await handleKitchenStaffUpdate(resp, orderId, status, type);
+      return;
+    }
+    if (role === UserRole.DELIVERY_STAFF) {
+      await handleDeliveryStaffUpdate(resp, orderId, status);
+      return;
+    }
+    resp.status(403).json({ message: "Unauthorized role." });
   } catch (error) {
     resp.status(500).json({
-      error: "Failed to update order information. Please try again later.",
+      message: "Failed to update order information. Please try again later.",
     });
   }
 };

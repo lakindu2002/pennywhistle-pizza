@@ -6,7 +6,7 @@ const routes: { [key: string]: (UserRole | undefined)[] } = {
   "/users/internal": [UserRole.ADMINISTRATOR],
   "/users": [undefined, UserRole.ADMINISTRATOR, UserRole.STORE_STAFF],
   "/products": [UserRole.ADMINISTRATOR],
-  "/products/find": [UserRole.ADMINISTRATOR],
+  "/products/find": [UserRole.ADMINISTRATOR, UserRole.CUSTOMER],
   "/products/update": [UserRole.ADMINISTRATOR],
   "/products/delete": [UserRole.ADMINISTRATOR],
   "/orders": [UserRole.CUSTOMER],
