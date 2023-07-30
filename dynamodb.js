@@ -141,11 +141,8 @@ const createUserTable = async () => {
   }
 };
 
-// Call the functions to delete and recreate the table
 (async () => {
-  // await deleteTable();
-  // await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds
-  // await createProductsTable();
+  await createProductsTable();
   await createOrdersTable();
-  // await createUserTable();
+  await createUserTable();
 })();
