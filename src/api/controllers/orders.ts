@@ -87,7 +87,23 @@ export const getOrdersBetweenADateRange = async (
   req: Request,
   resp: Response
 ) => {
-  resp.json({ message: "HEALTHY" });
+  const { startDate, endDate } = req.params as unknown as {
+    startDate: number;
+    endDate: number;
+  };
+  const { status } = req.body as { status?: OrderStatus };
+
+  try {
+    const ordersPerDateAndStatus = await OrderService.ordersPerDateAndStatus(
+      startDate,
+      endDate,
+      status
+    );
+    resp.json({ orders: ordersPerDateAndStatus });
+  } catch (err) {
+    resp.status(500);
+    resp.json({ message: "Failed to fetch order" });
+  }
 };
 
 export const updateOrderInformation = async (req: Request, resp: Response) => {
