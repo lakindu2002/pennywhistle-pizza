@@ -84,6 +84,13 @@ routes.post(
   orderController.getOrdersByStatus
 );
 
+routes.patch(
+  "/orders/:orderId",
+  passport.authenticate("jwt", { session: false }),
+  Authorizer.checkRoleAuthorization,
+  orderController.updateOrderInformation
+);
+
 routes.post(
   "/orders/between/:startDate/:endDate",
   passport.authenticate("jwt", { session: false }),
