@@ -5,6 +5,9 @@ const routes: { [key: string]: (UserRole | undefined)[] } = {
   "/users/find/:role": [UserRole.ADMINISTRATOR],
   "/users/internal": [UserRole.ADMINISTRATOR],
   "/users": [undefined, UserRole.ADMINISTRATOR, UserRole.STORE_STAFF],
+  "/products": [UserRole.ADMINISTRATOR],
+  "/products/find": [UserRole.ADMINISTRATOR],
+  "/products/:productId": [UserRole.ADMINISTRATOR],
 };
 
 export class Authorizer {
