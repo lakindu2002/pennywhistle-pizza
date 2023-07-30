@@ -15,7 +15,7 @@ export class UserService {
     );
     let userExists: boolean = false;
     try {
-      const user = await UserService.getUserByEmail(request.email);
+      await UserService.getUserByEmail(request.email);
       userExists = true;
     } catch (err) {
       userExists = false;

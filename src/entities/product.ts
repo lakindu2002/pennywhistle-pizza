@@ -1,18 +1,26 @@
 export enum ProductSize {
   SMALL = "small",
-  MEDIUM = "medium",
+  REGULAR = "regular",
   LARGE = "large",
 }
 
-export interface Product {
-  id: string;
-  name: string;
-  baseSku: string;
-  variants: ProductVariant[];
+export enum ProductType {
+  THIN_CRUST = "thin_crust",
+  THICK_CRUST = "thick_crust",
+  SASUAGE_CRUST = "sasuage_crust",
 }
 
-export interface ProductVariant {
-  sku: string;
-  price: number;
+export interface ProductSchema {
+  baseSku: string;
   variantSku: string;
+}
+
+export interface Product extends ProductSchema {
+  name: string;
+}
+
+export interface ProductVariant extends ProductSchema {
+  price: number;
+  size: ProductSize;
+  type: ProductType;
 }

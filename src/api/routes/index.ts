@@ -3,6 +3,7 @@ import { Router } from "express";
 import * as healthController from "@pizza/api/controllers/health";
 import * as authController from "@pizza/api/controllers/auth";
 import * as userController from "@pizza/api/controllers/users";
+import * as productsController from "@pizza/api/controllers/products";
 import { Authorizer } from "@pizza/utils";
 
 const routes = Router();
@@ -28,5 +29,30 @@ routes.post(
 );
 
 routes.post("/auth/login", authController.loginFunction);
+
+routes.post(
+  "/products",
+  passport.authenticate("jwt", { session: false }),
+  Authorizer.checkRoleAuthorization,
+  productsController.createProduct
+);
+routes.post(
+  "/products/find",
+  passport.authenticate("jwt", { session: false }),
+  Authorizer.checkRoleAuthorization,
+  productsController.getProducts
+);
+routes.patch(
+  "/products/update",
+  passport.authenticate("jwt", { session: false }),
+  Authorizer.checkRoleAuthorization,
+  productsController.patchProductById
+);
+routes.post(
+  "/products/delete",
+  passport.authenticate("jwt", { session: false }),
+  Authorizer.checkRoleAuthorization,
+  productsController.deleteProductByBaseSku
+);
 
 export default routes;

@@ -14,6 +14,28 @@ const deleteTable = async () => {
   }
 };
 
+const createProductsTable = async () => {
+  const params = {
+    TableName: 'products',
+    AttributeDefinitions: [
+      { AttributeName: 'baseSku', AttributeType: 'S' },
+      { AttributeName: 'variantSku', AttributeType: 'S' }
+    ],
+    KeySchema: [
+      { AttributeName: 'baseSku', KeyType: 'HASH' },
+      { AttributeName: 'variantSku', KeyType: 'RANGE' }
+    ],
+    BillingMode: 'PAY_PER_REQUEST'
+  };
+
+  try {
+    await dynamodb.createTable(params).promise();
+    console.log('Table created successfully.');
+  } catch (err) {
+    console.error('Error creating table:', err);
+  }
+};
+
 const createUserTable = async () => {
   const params = {
     TableName: 'users',
@@ -62,7 +84,7 @@ const createUserTable = async () => {
 
 // Call the functions to delete and recreate the table
 (async () => {
-  await deleteTable();
-  await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds
-  await createUserTable();
+  await createProductsTable();
+  // await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds
+  // await createUserTable();
 })();
