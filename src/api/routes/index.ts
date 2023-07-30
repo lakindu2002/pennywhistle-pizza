@@ -43,16 +43,16 @@ routes.post(
   productsController.getProducts
 );
 routes.patch(
-  "/products/:productId",
+  "/products/update",
   passport.authenticate("jwt", { session: false }),
   Authorizer.checkRoleAuthorization,
   productsController.patchProductById
 );
-routes.delete(
-  "/products/:productId",
+routes.post(
+  "/products/delete",
   passport.authenticate("jwt", { session: false }),
   Authorizer.checkRoleAuthorization,
-  productsController.deleteProductById
+  productsController.deleteProductByBaseSku
 );
 
 export default routes;
