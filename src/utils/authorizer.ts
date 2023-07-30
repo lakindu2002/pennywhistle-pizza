@@ -6,9 +6,25 @@ const routes: { [key: string]: (UserRole | undefined)[] } = {
   "/users/internal": [UserRole.ADMINISTRATOR],
   "/users": [undefined, UserRole.ADMINISTRATOR, UserRole.STORE_STAFF],
   "/products": [UserRole.ADMINISTRATOR],
-  "/products/find": [UserRole.ADMINISTRATOR],
+  "/products/find": [UserRole.ADMINISTRATOR, UserRole.CUSTOMER],
   "/products/update": [UserRole.ADMINISTRATOR],
   "/products/delete": [UserRole.ADMINISTRATOR],
+  "/orders": [UserRole.CUSTOMER],
+  "/orders/customer/:customerId": [UserRole.CUSTOMER, UserRole.ADMINISTRATOR],
+  "/orders/customer/:customerId/current": [UserRole.CUSTOMER],
+  "/orders/status/:status": [
+    UserRole.ADMINISTRATOR,
+    UserRole.DELIVERY_STAFF,
+    UserRole.KITCHEN_STAFF,
+    UserRole.STORE_STAFF,
+  ],
+  "/orders/between/:startDate/:endDate": [UserRole.ADMINISTRATOR],
+  "/orders/:orderId": [
+    UserRole.ADMINISTRATOR,
+    UserRole.DELIVERY_STAFF,
+    UserRole.KITCHEN_STAFF,
+    UserRole.STORE_STAFF,
+  ],
 };
 
 export class Authorizer {
