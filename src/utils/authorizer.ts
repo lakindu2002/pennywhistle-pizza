@@ -9,6 +9,11 @@ const routes: { [key: string]: (UserRole | undefined)[] } = {
   "/products/find": [UserRole.ADMINISTRATOR],
   "/products/update": [UserRole.ADMINISTRATOR],
   "/products/delete": [UserRole.ADMINISTRATOR],
+  "/orders": [UserRole.CUSTOMER],
+  "/orders/customer/:customerId": [UserRole.CUSTOMER, UserRole.ADMINISTRATOR],
+  "/orders/customer/:customerId/current": [UserRole.CUSTOMER],
+  "/orders/status/:status": [],
+  "/orders/between/:startDate/:endDate": [UserRole.ADMINISTRATOR],
 };
 
 export class Authorizer {

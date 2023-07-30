@@ -157,7 +157,7 @@ export class ProductService {
       TableName: database.productsTable,
       Key: {
         baseSku: productId,
-        variantSku: variantSku,
+        variantSku,
       },
       UpdateExpression:
         "SET " +
@@ -216,5 +216,23 @@ export class ProductService {
     };
 
     await database.db.update(params).promise();
+  }
+
+  static async getProductBySKU(
+    baseSku: string,
+    variantSku: string
+  ): Promise<ProductVariant | undefined> {
+    const database = new Database();
+    const { Item } = await database.db
+      .get({
+        Key: { baseSku, variantSku },
+        TableName: database.ordersTable,
+      })
+      .promise();
+
+    if (Item) {
+      return Item as ProductVariant;
+    }
+    return undefined;
   }
 }
