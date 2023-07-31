@@ -1,10 +1,19 @@
 # Pennywhistle Pizza Web API
 
+The application is deployed on: http://penny-Publi-1G36I2FQTT6YP-696116164.us-east-1.elb.amazonaws.com
+
+## Users
+
+There is a pre-registered administrator:
+
+- Email: lakinduhewa@gmail.com
+- Password: Test@1234
+
+Visit the `/docs` endpoint and Authenticate with it to consume admin features.
+
 ## Deployment Guidelines
 
 The ExpressJS API is deployed on AWS Fargate using AWS Copilot.
-
-Currently the application is deployed on: http://penny-Publi-1G36I2FQTT6YP-696116164.us-east-1.elb.amazonaws.com
 
 - Ensure that you have Docker, AWS Copilot, AWS CLI Installed.
 

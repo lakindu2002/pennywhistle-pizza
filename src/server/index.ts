@@ -4,6 +4,7 @@ import { Logger } from "@pizza/logger";
 import routes from "@pizza/api/routes";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { UserService } from "@pizza/api/services";
+import { swaggerUi, specs } from "@pizza/swagger";
 
 export class Server {
   private server: express.Express;
@@ -21,6 +22,7 @@ export class Server {
 
   addRoutes() {
     this.server.use(routes);
+    this.server.use("/docs", swaggerUi.serve, swaggerUi.setup(specs, {}));
   }
 
   getServer() {
