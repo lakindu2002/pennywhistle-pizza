@@ -4,44 +4,12 @@
 
 The ExpressJS API is deployed on AWS Fargate using AWS Copilot.
 
-Before you deploy, it's important to ensure that you have added the following:
+Currently the application is deployed on: http://penny-Publi-1G36I2FQTT6YP-696116164.us-east-1.elb.amazonaws.com
 
-- An IAM User.
-
-The IAM User should have the following IAM Policy:
-
-```
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "Stmt1690741472001",
-      "Action": [
-        "dynamodb:BatchGetItem",
-        "dynamodb:BatchWriteItem",
-        "dynamodb:ConditionCheckItem",
-        "dynamodb:CreateTable",
-        "dynamodb:DeleteItem",
-        "dynamodb:DeleteTable",
-        "dynamodb:GetItem",
-        "dynamodb:GetRecords",
-        "dynamodb:PutItem",
-        "dynamodb:Query",
-        "dynamodb:Scan",
-        "dynamodb:UpdateItem"
-      ],
-      "Effect": "Allow",
-      "Resource": "*"
-    }
-  ]
-}
-```
-
-- Next, create a set of Secret Access Keys and Access Key for the IAM User that will be used for the app
-
-- Next, ensure that you have Docker, AWS CLI Installed.
+- Ensure that you have Docker, AWS Copilot, AWS CLI Installed.
 
   - Docker: https://docs.docker.com/engine/install/
+  - AWS Copilot: `brew install aws/tap/copilot-cli`
   - AWS CLI: `curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg" && sudo installer -pkg AWSCLIV2.pkg -target /`
 
 - The Dockerfile present at the root will be used for deployment.
@@ -57,3 +25,96 @@ docker run -p 3000:3000 -d penny-whistle-web-api
 ```
 
 - Next, before deploying to AWS Fargate using AWS Copilot, run `node dynamodb.js` to provision the DynamoDB Tables. If you wish to update the region, make sure to update the region in `dynamodb.js` and `.env`.
+
+- Next, initialize Copilot using `copilot init` and input following:
+
+  - App Name: `web-api`
+  - Workload type: `Load Balanced Web Service`
+  - Service name - `api`
+  - Dockerfile - `./Dockerfile`
+  - Deploy test environment - `N`
+
+- Next, initialize an environment using `copilot env init`
+
+  - Name: `test`
+  - AWS Profile: Your configured profile
+  - Default Configs: `Yes, use default.`
+
+- Open the `copilot/api/manifest.yml` and update the memory and CPU to the following:
+
+```
+cpu: 4096
+memory: 8192
+
+variables: # Pass environment variables as key value pairs.
+  LOG_LEVEL: info
+  AWS_REGION: ap-south-1
+  AWS_USER_TABLE_NAME: users
+  AWS_PRODUCT_TABLE_NAME: products
+  AWS_ORDER_TABLE_NAME: orders
+  APP_PORT: 3000
+  JWT_SECRET: 123456789789798172398127897asd9a8s7da89s7da89s7dasdacdascdasdcsadcascds1a1c1a2d1as2dc1sa2cd1sa2
+
+```
+
+- Next, create a new directory inside `./copilot/api` called `addons` and create a file called `iam.yml`. This will be used to define the IAM Policy needed for the app to work.
+
+- Next, add the following config to the `iam.yml`:
+
+```
+# You can use any of these parameters to create conditions or mappings in your template.
+Parameters:
+  App:
+    Type: String
+    Description: Your application's name.
+  Env:
+    Type: String
+    Description: The environment name your service, job, or workflow is being deployed to.
+  Name:
+    Type: String
+    Description: The name of the service, job, or workflow being deployed.
+
+Resources:
+  PennyWhistleAPIDynamoAccessRole:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: DDBActions
+            Effect: Allow
+            Action:
+              - dynamodb:BatchGet*
+              - dynamodb:Get*
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:BatchWrite*
+              - dynamodb:Create*
+              - dynamodb:Delete*
+              - dynamodb:Update*
+              - dynamodb:PutItem
+            Resource:
+              - "*"
+          - Sid: PutMetrics
+            Effect: Allow
+            Action:
+              - cloudwatch:PutMetricData
+            Resource: "*"
+          - Sid: XRayPutSegments
+            Effect: Allow
+            Action:
+              - xray:PutTraceSegments
+            Resource: "*"
+
+Outputs:
+  PennyWhistleAPIDynamoAccessRoleArn:
+    Description: "The ARN of the ManagedPolicy to attach to the task role."
+    Value: !Ref PennyWhistleAPIDynamoAccessRole
+
+```
+
+- Next deploy the environment: `copilot env deploy --name test`
+
+- Next, run the command `copilot deploy` to deploy the app.
+
+- To delete your deployment, run `copilot app delete`
