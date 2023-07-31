@@ -10,6 +10,11 @@ export const createCustomerFunction = async (req: Request, resp: Response) => {
     password,
     role = UserRole.CUSTOMER,
   } = req.body as SignUpRequest;
+  if (!Object.values(UserRole).includes(role)) {
+    resp.status(400);
+    resp.json({ message: "BAD_REQUEST" });
+    return;
+  }
   try {
     const userId = await UserService.createUser({
       email,
@@ -27,8 +32,17 @@ export const createInternalUserFunction = async (
   req: Request,
   resp: Response
 ) => {
-  const { email, fullName, password, role } = req.body as SignUpRequest;
-
+  const {
+    email,
+    fullName,
+    password,
+    role = UserRole.CUSTOMER,
+  } = req.body as SignUpRequest;
+  if (role === UserRole.CUSTOMER || !Object.values(UserRole).includes(role)) {
+    resp.status(400);
+    resp.json({ message: "BAD_REQUEST" });
+    return;
+  }
   try {
     const userId = await UserService.createUser({
       email,
