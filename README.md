@@ -21,7 +21,6 @@ Visit the `/docs` endpoint and Authenticate with it to consume admin features.
 ## Testing
 
 - Unit/ Integration tests have been implemented using Jest + Superfetch.
-- CI workflow has been set up on GitHub Actions - `./.github/workflows/ci.yml` contain the CI configuration that runs on every push to `main` + on every PR opened to Main.
 - To run the tests, run `npm run test`
 
 ## Deployment Guidelines
