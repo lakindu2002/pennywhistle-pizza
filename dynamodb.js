@@ -1,7 +1,7 @@
 const aws = require("aws-sdk");
 const dynamodb = new aws.DynamoDB({
   region: "ap-south-1",
-  ...(process.env.NODE_ENV === "test" && {
+  ...((process.env.NODE_ENV === "test" || process.env.RUNNING_CI == "YES") && {
     endpoint: "http://localhost:8000",
   }),
 });

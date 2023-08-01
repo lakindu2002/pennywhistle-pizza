@@ -1,6 +1,6 @@
 const aws = require("aws-sdk");
 const documentClient = new aws.DynamoDB.DocumentClient({
-  ...(process.env.NODE_ENV === "test" && {
+  ...((process.env.NODE_ENV === "test" || process.env.RUNNING_CI == "YES") && {
     endpoint: "http://localhost:8000",
   }),
   region: "ap-south-1",
