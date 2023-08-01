@@ -1,3 +1,4 @@
+import { Logger } from "@pizza/logger";
 import AWS from "aws-sdk";
 
 class Database {
@@ -14,6 +15,9 @@ class Database {
           accessKeyId: process.env.AWS_ACCESS,
           secretAccessKey: process.env.AWS_SECRET_ACCESS,
         }),
+      ...(process.env.NODE_ENV === "test" && {
+        endpoint: "http://localhost:8000",
+      }),
     });
 
     this.userTable = process.env.AWS_USER_TABLE_NAME;

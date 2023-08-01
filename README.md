@@ -2,6 +2,13 @@
 
 The application is deployed on: http://penny-Publi-1G36I2FQTT6YP-696116164.us-east-1.elb.amazonaws.com
 
+## Setup
+
+- Clone repository
+- Run `npm install` to install required dependencies
+- Run `npm run start` to launch dev server.
+- Visit `localhost:3000` to see API in action.
+
 ## Users
 
 There is a pre-registered administrator:
@@ -11,15 +18,21 @@ There is a pre-registered administrator:
 
 Visit the `/docs` endpoint and Authenticate with it to consume admin features.
 
+## Testing
+
+- Unit/ Integration tests have been implemented using Jest + Superfetch.
+- Set up DynamoDB Local using Docker - `docker run -p 8000:8000 amazon/dynamodb-local`. Then proceed to next step.
+- To run the tests, run `npm run test`
+
 ## Deployment Guidelines
 
-The ExpressJS API is deployed on AWS Fargate using AWS Copilot.
+The API is deployed on AWS Fargate using AWS Copilot.
 
 - Ensure that you have Docker, AWS Copilot, AWS CLI Installed.
 
   - Docker: https://docs.docker.com/engine/install/
   - AWS Copilot: `brew install aws/tap/copilot-cli`
-  - AWS CLI: `curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg" && sudo installer -pkg AWSCLIV2.pkg -target /`
+  - AWS CLI: `curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg" && sudo installer -pkg AWSCLIV2.pkg -target /` and configure a profile.
 
 - The Dockerfile present at the root will be used for deployment.
 
@@ -33,7 +46,9 @@ docker images | grep penny-whistle-web-api
 docker run -p 3000:3000 -d penny-whistle-web-api
 ```
 
-- Next, before deploying to AWS Fargate using AWS Copilot, run `node dynamodb.js` to provision the DynamoDB Tables. If you wish to update the region, make sure to update the region in `dynamodb.js` and `.env`.
+- Ensure Docker is up and running before the deployment.
+
+- Open the folder `./scripts/terminal` in your terminal. Then run `node dynamodb.js && node insert-sample-data.js` to provision the DynamoDB Tables. Leave the region in Mumbai (ap-south-1).
 
 - Next, initialize Copilot using `copilot init` and input following:
 
@@ -57,7 +72,7 @@ memory: 8192
 
 variables: # Pass environment variables as key value pairs.
   LOG_LEVEL: info
-  AWS_REGION: ap-south-1
+  AWS_REGION: ap-south-1 (or your region)
   AWS_USER_TABLE_NAME: users
   AWS_PRODUCT_TABLE_NAME: products
   AWS_ORDER_TABLE_NAME: orders
