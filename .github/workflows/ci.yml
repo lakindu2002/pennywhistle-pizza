@@ -11,11 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      RUNNING_CI: YES
     steps:
-      - name: Set environment variable
-        run: echo "RUNNING_CI=YES" >> $GITHUB_ENV
-
       - name: Checkout code
         uses: actions/checkout@v2
 
