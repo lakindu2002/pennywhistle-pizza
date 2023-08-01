@@ -37,7 +37,7 @@ jobs:
 
       - name: Run DynamoDB script
         run: |
-          node srcipts/terminal/dynamodb.js
+          node ./scripts/terminal/dynamodb.js
 
       - name: Add Sample Users + Product
         run: node insert-sample-data.js
