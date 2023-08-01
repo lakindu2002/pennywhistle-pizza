@@ -7,7 +7,7 @@ import {
   handleDeliveryStaffUpdate,
   handleKitchenStaffUpdate,
   handleStoreStaffUpdate,
-} from "@pizza/utils/order";
+} from "@pizza/utils";
 
 export const makeOrder = async (req: Request, resp: Response) => {
   const { id } = req.user as User;
