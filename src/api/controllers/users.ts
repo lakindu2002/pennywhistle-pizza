@@ -10,7 +10,7 @@ export const createCustomerFunction = async (req: Request, resp: Response) => {
     password,
     role = UserRole.CUSTOMER,
   } = req.body as SignUpRequest;
-  if (!Object.values(UserRole).includes(role)) {
+  if (role !== UserRole.CUSTOMER) {
     resp.status(400);
     resp.json({ message: "BAD_REQUEST" });
     return;
@@ -62,6 +62,7 @@ export const getUsersPerRole = async (req: Request, resp: Response) => {
   if (!role || role !== UserRole.CUSTOMER) {
     resp.status(400);
     resp.json({ message: "BAD_INPUTS_RECIEVED" });
+    return;
   }
 
   const users = await UserService.getUsersByRole(role as UserRole);

@@ -7,17 +7,22 @@ import {
   handleDeliveryStaffUpdate,
   handleKitchenStaffUpdate,
   handleStoreStaffUpdate,
-} from "@pizza/utils/order";
+} from "@pizza/utils";
 
 export const makeOrder = async (req: Request, resp: Response) => {
   const { id } = req.user as User;
   const orderData = req.body as CreateOrderDTO;
+  if (Object.keys(orderData || {}).length === 0) {
+    resp.status(400);
+    resp.json({ message: "PAYLOAD_REQUIRED" });
+    return;
+  }
   try {
     const orderId = await OrderService.createOrder(orderData, id);
     resp.json({ orderId, message: "ORDER_CREATED" });
   } catch (err) {
     resp.status(500);
-    resp.json({ message: "Failed to create order" });
+    resp.json({ message: err?.message || "Failed to create order" });
   }
 };
 
@@ -122,7 +127,7 @@ export const getOrdersBetweenADateRange = async (
     resp.json({ orders: ordersPerDateAndStatus });
   } catch (err) {
     resp.status(500);
-    resp.json({ message: "Failed to fetch order" });
+    resp.json({ message: err?.message || "Failed to fetch order" });
   }
 };
 

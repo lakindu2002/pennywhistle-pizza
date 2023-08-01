@@ -3,3 +3,9 @@ export { createUserEntity } from "./user";
 export { generateUUID, generateNanoId } from "./uuid";
 export { PasswordHasher } from "./hashing";
 export { ProductUtil } from "./product";
+export {
+  handleAdministratorUpdate,
+  handleDeliveryStaffUpdate,
+  handleKitchenStaffUpdate,
+  handleStoreStaffUpdate,
+} from "./order";
