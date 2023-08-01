@@ -35,21 +35,13 @@ jobs:
 
       - name: Run DynamoDB script
         run: |
-          if [ "$RUNNING_CI" = "YES" ]; then
-            echo "Running in CI environment."
-          else
-            echo "Not running in CI environment."
-          fi
-            node dynamodb.js
+          node srcipts/terminal/dynamodb.js
 
       - name: Add Sample Users + Product
         run: node insert-sample-data.js
 
       - name: Run tests
         run: npm test
-
-      - name: Clean Tables
-        run: node clean-up-tables.js
 
       - name: Stop DynamoDB Local
         run: docker stop dynamodb-local
