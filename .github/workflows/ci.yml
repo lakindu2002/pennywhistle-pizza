@@ -13,6 +13,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+
+      - name: Start Docker
+        run: |
+          sudo systemctl start docker
+          sudo systemctl enable docker
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -24,5 +34,24 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Start DynamoDB local
+        run: docker run -d -p 8000:8000 amazon/dynamodb-local
+
+      - name: Wait for DynamoDB local
+        run: |
+          until nc -z localhost 8000; do sleep 1; done
+
+      - name: Run DynamoDB script
+        run: node dynamodb.js
+
+      - name: Add Sample Users + Product
+        run: node insert-sample-data.js
+
       - name: Run tests
         run: npm test
+
+      - name: Clean Tables
+        run: node clean-up-tables.js
+
+      - name: Stop DynamoDB Local
+        run: docker stop dynamodb-local
