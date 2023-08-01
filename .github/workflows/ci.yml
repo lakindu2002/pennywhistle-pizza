@@ -8,11 +8,12 @@ on:
     branches:
       - main
 
+env:
+  RUNNING_CI: YES
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      RUNNING_CI: YES
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -33,7 +34,13 @@ jobs:
           until nc -z localhost 8000; do sleep 1; done
 
       - name: Run DynamoDB script
-        run: node dynamodb.js
+        run: |
+          if [ "$RUNNING_CI" = "YES" ]; then
+            echo "Running in CI environment."
+          else
+            echo "Not running in CI environment."
+          fi
+            node dynamodb.js
 
       - name: Add Sample Users + Product
         run: node insert-sample-data.js
