@@ -10,9 +10,6 @@ on:
     types:
       - synchronize
 
-env:
-  RUNNING_CI: YES
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,7 +37,7 @@ jobs:
           node ./scripts/terminal/dynamodb.js
 
       - name: Add Sample Users + Product
-        run: node insert-sample-data.js
+        run: node ./scripts/terminal/insert-sample-data.js
 
       - name: Run tests
         run: npm test
