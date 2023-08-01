@@ -1,5 +1,7 @@
 const aws = require("aws-sdk");
 
+console.log(process.env);
+
 if (process.env.RUNNING_CI === "YES" || process.env.NODE_ENV === "test") {
   aws.config.update({
     region: "ap-south-1",
