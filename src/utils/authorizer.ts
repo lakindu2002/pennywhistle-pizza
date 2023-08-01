@@ -29,6 +29,18 @@ const routes: { [key: string]: (UserRole | undefined)[] } = {
 
 export class Authorizer {
   // Custom middleware function for role-based authorization
+
+  static isAuthorized(userRole: UserRole, route: string) {
+    const permissionsRequiredForPath = routes[route];
+    if (!permissionsRequiredForPath) {
+      return false;
+    }
+    if (permissionsRequiredForPath.includes(userRole)) {
+      return true;
+    }
+    return false;
+  }
+
   static checkRoleAuthorization(
     req: Request,
     res: Response,
@@ -37,8 +49,7 @@ export class Authorizer {
     const userRole = (req.user as User | undefined)?.role;
     const path = req.route.path as string;
 
-    const permissionsRequiredPerPath = routes[path];
-    if (permissionsRequiredPerPath.includes(userRole)) {
+    if (Authorizer.isAuthorized(userRole, path)) {
       next();
     } else {
       res
