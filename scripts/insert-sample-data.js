@@ -1,10 +1,15 @@
 const aws = require("aws-sdk");
-const documentClient = new aws.DynamoDB.DocumentClient({
-  ...((process.env.NODE_ENV === "test" || process.env.RUNNING_CI == "YES") && {
+if (process.env.RUNNING_CI === "YES" || process.env.NODE_ENV === "test") {
+  aws.config.update({
+    region: "ap-south-1",
     endpoint: "http://localhost:8000",
-  }),
-  region: "ap-south-1",
-});
+  });
+} else {
+  aws.config.update({
+    region: "ap-south-1",
+  });
+}
+const documentClient = new aws.DynamoDB.DocumentClient();
 
 const users = [
   {
@@ -96,11 +101,6 @@ const insertSampleData = async () => {
   await insertUsersData();
   await insertSampleProductsData();
 }
-
-(async () => {
-  await insertUsersData();
-  await insertSampleProductsData();
-})();
 
 module.exports = {
   insertSampleData

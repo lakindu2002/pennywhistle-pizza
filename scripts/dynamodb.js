@@ -121,7 +121,7 @@ const createUserTable = async () => {
             "createdAt",
             "updatedAt",
             "role",
-          ], // Specify the projected attributes
+          ],
         },
       },
       {
@@ -138,7 +138,7 @@ const createUserTable = async () => {
             "updatedAt",
             "role",
             "password",
-          ], // Specify the projected attributes
+          ],
         },
       },
     ],
@@ -151,12 +151,6 @@ const createUserTable = async () => {
     console.error("Error creating table:", err);
   }
 };
-
-(async () => {
-  await createProductsTable();
-  await createOrdersTable();
-  await createUserTable();
-})();
 
 const createTables = async () => {
   await createProductsTable();

@@ -1,14 +1,18 @@
 import { AuthService } from "../../src/api/services";
 import { configDotenv } from "dotenv";
-const { createTables } = require("../../dynamodb");
-const { insertSampleData } = require("../../insert-sample-data");
-const { cleanupTables } = require("../../clean-up-tables");
+const { insertSampleData } = require("../../scripts/insert-sample-data");
+const { cleanupTables } = require("../../scripts/clean-up-tables");
+const { createTables } = require("../../scripts/dynamodb");
 
 describe("AuthService", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     configDotenv();
     await createTables();
     await insertSampleData();
+  });
+
+  afterEach(async () => {
+    await cleanupTables();
   });
 
   it("should return a valid JWT token for a successful login", async () => {
@@ -25,9 +29,5 @@ describe("AuthService", () => {
     await expect(AuthService.login(email, password)).rejects.toThrowError(
       "User does not exist"
     );
-  });
-
-  afterAll(async () => {
-    await cleanupTables();
   });
 });

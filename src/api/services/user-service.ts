@@ -6,6 +6,9 @@ import { createUserEntity, generateUUID } from "@pizza/utils";
 export class UserService {
   static async createUser(request: SignUpRequest): Promise<string> {
     const database = new Database();
+    if (!request || Object.keys(request).length === 0) {
+      throw new Error("One or more required fields are missing");
+    }
     const entity = createUserEntity(
       generateUUID(),
       request.fullName,
