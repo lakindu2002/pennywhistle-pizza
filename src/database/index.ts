@@ -8,8 +8,6 @@ class Database {
   ordersTable: string;
 
   constructor() {
-    Logger.log("process.env.NODE_ENV");
-    Logger.log(process.env.NODE_ENV);
     this.db = new AWS.DynamoDB.DocumentClient({
       region: process.env.AWS_REGION,
       ...(process.env.AWS_ACCESS &&
