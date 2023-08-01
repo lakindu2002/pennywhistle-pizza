@@ -32,7 +32,7 @@ The API is deployed on AWS Fargate using AWS Copilot.
 
   - Docker: https://docs.docker.com/engine/install/
   - AWS Copilot: `brew install aws/tap/copilot-cli`
-  - AWS CLI: `curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg" && sudo installer -pkg AWSCLIV2.pkg -target /`
+  - AWS CLI: `curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg" && sudo installer -pkg AWSCLIV2.pkg -target /` and configure a profile.
 
 - The Dockerfile present at the root will be used for deployment.
 
@@ -48,7 +48,28 @@ docker run -p 3000:3000 -d penny-whistle-web-api
 
 - Ensure Docker is up and running before the deployment.
 
-- Next, before deploying to AWS Fargate using AWS Copilot, run `node dynamodb.js` to provision the DynamoDB Tables. If you wish to update the region, make sure to update the region in `dynamodb.js` and `.env`.
+- Next, you will need to provision the databases. To do so, open `./scripts/clean-up-tables.js` and `./scripts/dynamodb.js` and `./scripts/insert-sample-data.js`. Each of these files have a code:
+
+```
+aws.config.update({
+  region: "ap-south-1",
+  endpoint: "http://localhost:8000",
+});
+```
+
+Remove the endpoint as follows:
+
+```
+aws.config.update({
+  region: "ap-south-1",
+});
+```
+
+Replace this config in all three files.
+
+- Open the folder `./scripts/terminal` in your terminal. Then run `node dynamodb.js && node insert-sample-data.js` to provision the DynamoDB Tables. Leave the region in Mumbai (ap-south-1).
+
+- Do not commit the scripts without the `endpoint` as this will break the CI.
 
 - Next, initialize Copilot using `copilot init` and input following:
 
