@@ -3,7 +3,12 @@ import { Request, Response } from "express";
 import { ProductService } from "@pizza/api/services";
 
 export const createProduct = async (req: Request, resp: Response) => {
-  const { name, sku, variants } = req.body as ProductCreateRequest;
+  const { name, sku, variants = [] } = req.body as ProductCreateRequest;
+  if (variants.length === 0) {
+    resp.status(400);
+    resp.send({ message: "NO_VARIANTS" });
+    return;
+  }
   try {
     const createdProduct = await ProductService.createProduct({
       name,
@@ -54,13 +59,9 @@ export const patchProductById = async (req: Request, resp: Response) => {
       await ProductService.updateProductAttributes(baseSku, updatedAttributes);
       resp.json({ message: "Product updated successfully." });
     } catch (err) {
-      console.error("Error updating product:", err);
-      resp
-        .status(500)
-        .json({
-          error:
-            err?.message || "An error occurred while updating the product.",
-        });
+      resp.status(500).json({
+        error: err?.message || "An error occurred while updating the product.",
+      });
     }
   }
 };

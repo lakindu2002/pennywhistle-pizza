@@ -4,9 +4,6 @@ import { configDotenv } from "dotenv";
 import { UserRole } from "../../src/entities";
 import { AuthService } from "../../src/api/services";
 
-const passport = require("passport");
-const { Strategy: JwtStrategy, ExtractJwt } = require("passport-jwt");
-
 const { insertSampleData } = require("../../scripts/insert-sample-data");
 const { cleanupTables } = require("../../scripts/clean-up-tables");
 const { createTables } = require("../../scripts/dynamodb");
@@ -74,7 +71,6 @@ describe("createInternalUserFunction", () => {
       "lakinduhewa@gmail.com",
       "Test@1234"
     );
-    console.log({ adminUserToken });
     const signUpRequest = {
       email: "internal1@example.com",
       fullName: "Internal User",
