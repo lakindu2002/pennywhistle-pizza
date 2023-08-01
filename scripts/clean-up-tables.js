@@ -1,14 +1,10 @@
 const aws = require("aws-sdk");
-if (process.env.GITHUB_ACTIONS === "true" || process.env.NODE_ENV === "test") {
-  aws.config.update({
-    region: "ap-south-1",
-    endpoint: "http://localhost:8000",
-  });
-} else {
-  aws.config.update({
-    region: "ap-south-1",
-  });
-}
+
+aws.config.update({
+  region: "ap-south-1",
+  endpoint: "http://localhost:8000",
+});
+
 const dynamodb = new aws.DynamoDB();
 const deleteTable = async (name) => {
   const params = {
