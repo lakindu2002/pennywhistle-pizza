@@ -17,6 +17,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: create env file
+        run: |
+          echo GITHUB_ACTIONS=true >> .env
+
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
