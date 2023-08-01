@@ -73,7 +73,7 @@ describe("OrderService", () => {
   it("should get orders per date and status", async () => {
     const startDate = startOfDecade(Date.now()).getTime();
     const endDate = endOfDecade(Date.now()).getTime();
-    const status = OrderStatus.COMPLETED;
+    const status = OrderStatus.CANCEL;
 
     const orders = await OrderService.ordersPerDateAndStatus(
       startDate,

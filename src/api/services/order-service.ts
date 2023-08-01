@@ -1,5 +1,5 @@
 import { CreateOrderDTO } from "@pizza/dto/order";
-import { Order, OrderItem, OrderStatus } from "@pizza/entities";
+import { Order, OrderItem, OrderStatus, OrderType } from "@pizza/entities";
 import { generateNanoId } from "@pizza/utils";
 import { ProductService } from "./product-service";
 import Database from "@pizza/database";
@@ -19,6 +19,11 @@ export class OrderService {
 
     const database = new Database();
 
+    if (
+      !!status && (status !== OrderStatus.CANCEL && status !== OrderStatus.PENDING)
+    ) {
+      throw new Error("Status can only be Cancel or Pending");
+    }
     if (status) {
       do {
         const { Items = [], LastEvaluatedKey } = await database.db
@@ -199,6 +204,10 @@ export class OrderService {
     customerId: string
   ): Promise<string> {
     const { items, type, deliveryInformation } = orderDto;
+
+    if (type === OrderType.DELIVERY && !deliveryInformation) {
+      throw new Error("Delivery information must be provided");
+    }
 
     const results = await Promise.all(
       items
