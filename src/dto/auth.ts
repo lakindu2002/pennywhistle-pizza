@@ -1,5 +1,4 @@
 import { UserRole } from "@pizza/entities";
-
 export interface SignUpRequest {
   fullName: string;
   email: string;
