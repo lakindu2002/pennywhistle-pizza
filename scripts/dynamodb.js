@@ -1,9 +1,15 @@
 const aws = require("aws-sdk");
 
-aws.config.update({
-  region: "ap-south-1",
-  endpoint: "http://localhost:8000",
-});
+if (process.env.NODE_ENV === "test") {
+  aws.config.update({
+    region: "ap-south-1",
+    endpoint: "http://localhost:8000",
+  });
+} else {
+  aws.config.update({
+    region: "ap-south-1",
+  });
+}
 
 const dynamodb = new aws.DynamoDB({});
 

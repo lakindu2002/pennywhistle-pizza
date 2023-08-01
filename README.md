@@ -48,28 +48,7 @@ docker run -p 3000:3000 -d penny-whistle-web-api
 
 - Ensure Docker is up and running before the deployment.
 
-- Next, you will need to provision the databases. To do so, open `./scripts/clean-up-tables.js` and `./scripts/dynamodb.js` and `./scripts/insert-sample-data.js`. Each of these files have a code:
-
-```
-aws.config.update({
-  region: "ap-south-1",
-  endpoint: "http://localhost:8000",
-});
-```
-
-Remove the endpoint as follows:
-
-```
-aws.config.update({
-  region: "ap-south-1",
-});
-```
-
-Replace this config in all three files.
-
 - Open the folder `./scripts/terminal` in your terminal. Then run `node dynamodb.js && node insert-sample-data.js` to provision the DynamoDB Tables. Leave the region in Mumbai (ap-south-1).
-
-- Do not commit the scripts without the `endpoint` as this will break the CI.
 
 - Next, initialize Copilot using `copilot init` and input following:
 
