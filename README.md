@@ -23,6 +23,7 @@ Visit the `/docs` endpoint and Authenticate with it to consume admin features.
 - Unit/ Integration tests have been implemented using Jest + Superfetch.
 - Set up DynamoDB Local using Docker - `docker run -p 8000:8000 amazon/dynamodb-local`. Then proceed to next step.
 - To run the tests, run `npm run test`
+- Currently all test cases have passed: `./test-results.png` (Image for Test Case Execution)
 
 ## Deployment Guidelines
 
